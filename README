@@ -1,0 +1,92 @@
+Christopher Fuentes
+cfuentes@g.harvard.edu
+HUID 60857326
+Project 2
+
+
+A - Submission Summary
+
+B - Three tools that process directories 
+	1. 
+		Name:		chown
+		Example:	chown ec2-user -R ./files
+		Use: 		Changes file owner and group (-R flag applies the change
+					recursively to all subdirectories and files)
+	2. 
+		Name:		scp
+		Example: 	scp -r ec2-user@123.45.678.90:/files ./localfiles
+		Use: 		Securely copies files between remote hosts (-r flag
+					recursively includes all subdirectories and files)
+	3.
+		Name: 		zip
+		Example: 	zip -r myzip ./files
+		Use: 		Compress and archive file(s) (-r option recursively 
+					includes all subdirectories and files in the output 
+					archive)
+
+C - The Open File Limit Question
+	The problem stems from the fact that in the nested recursive model, 
+	the directories can't be closed until the entire recursive stack has
+	returned. The burrowing script can be written in three steps:
+			1. open dir
+			2. burrow into dir
+			3. close dir
+
+	The call stack would look something like this:
+
+	open(dir1)
+		mkdir(dir2)
+		open(dir2)
+			mkdir(dir3)
+			open(dir3)
+				... the rest of the recursion
+			close(dir3)
+		close(dir2)
+	close(dir1)
+
+	From a process perspective, the solution is to avoid nested recursion. 
+	One possible solution therefore is to close the file before making the next recursive call. 
+
+	E.g. 
+
+	open(dir1)
+		mkdir(dir2)
+	close(dir1)
+	open(dir2)
+		mkdir(dir3)
+	close(dir2)
+
+	For the burrowing example, in C you might maintain a reference to the 
+	current path. As you burrow deeper, you keep appending to that path
+	until you reach a certain path length limit. At that point, you return
+	from the burrow() call (which closes all the open files), cd to where
+	the path left you, reset the path to "" and perform burrow(). Continue 
+	this until you've reached the desired depth. 
+
+	E.g. roughly something like this:
+
+	static char *cur_path = "";
+
+	int burrow(char *dirname, char depth){
+		if (depth >= TARGET_DEPTH) { return 0; }
+		if (strlen(cur_path) > MAX) { return 1; }
+		
+		sprintf(path_buf, "%s/%s", cur_path, dirname);
+		cur_path = path_buf;
+		
+		mkdir(dirname, 644);
+		int fd = open(dirname);
+		int keep_going;
+		while (keep_going = burrow(dirname, depth++))  {
+			chdir(cur_path);
+			cur_path = "";
+		}
+		close(fd);
+		return 0;
+	}
+
+	More generally, the technique of memoization can resolve this issue. 
+	Namely, instead of maintaining open files, instead maintain a list of
+	paths to open files such that you can close and reopen those files as
+	needed. 
+

@@ -1,0 +1,128 @@
+Script started on Sat 28 Feb 2015 06:05:33 PM EST
+cfuentes@ls04:~/CSCI-E28/pset2$ make
+cc -Wall pfind_utils.c pfind.c -o pfind
+cfuentes@ls04:~/CSCI-E28/pset2$ ls
+a  burrow    cookie.txt  Makefile  pfind    pfind_utils.c  Plan    test		 thedir
+b  burrow.c  d8.txt	 mydir	   pfind.c  pfind_utils.h  README  test_results  typescript
+cfuentes@ls04:~/CSCI-E28/pset2$ rm -rf test_results
+cfuentes@ls04:~/CSCI-E28/pset2$ ./[K[Kcat test
+~lib215/hw/pfind/test.pfind
+cfuentes@ls04:~/CSCI-E28/pset2$ ./test
+Making directory for test results..
+
+	Part 0: Checking handling of bad command lines
+	  Test 0a:  find . -name
+		Test 0a..OK
+	  Test 0b:  find . -name x -type
+		Test 0b..OK
+	  Test 0c:  find . -oops bad
+		Test 0c..OK
+
+	Part 1: checking for passwd in /etc
+	  Test 1a:  find /etc -name passwd
+		Test 1a..OK
+	  Test 1b: cd /etc;  find . -name passwd
+		Test 1b..OK
+	  Test 1c: cd /;  find etc -name passwd
+		Test 1c..OK
+
+	Part 2: multi-level search
+	  Test 2a:  find /home/l/i/lib215/hw/pfind/pft.d -name cookie
+		Test 2a..OK
+	  Test 2b: cd /home/l/i/lib215/hw/pfind;  find pft.d -name cookie
+		Test 2b..OK
+
+	Part 3: detect unreadable paths
+		This test searches some unreadable paths..
+		Error messages should be written to stderr.
+	  Test 3:  find /home/l/i/lib215/hw/pfind/pft2.d -name d8
+		Test 3..OK
+
+	Part 4: symlink test
+		If the test seems stuck here, your program
+		is lost in symlink loop.  Press Ctrl-C to stop it.
+	  Test 4:  find /home/l/i/lib215/hw/pfind/pft3.d -name cookie
+		Test 4..OK
+
+	Part 5: pattern matching tests
+	  Test 5a:  find /home/l/i/lib215/hw/pfind/pft.d -name \*1
+		Test 5a..OK
+	  Test 5b:  find /home/l/i/lib215/hw/pfind/pft.d -name dir\*
+		Test 5b..OK
+	  Test 5c:  find /home/l/i/lib215/hw/pfind/pft2.d -name d\?
+		Test 5c..OK
+
+	Part 7: test combinations of args
+	  Test 7a:  find . -type d
+		Test 7a..OK
+	  Test 7b:  find . -type f
+		Test 7b..OK
+	  Test 7c:  find . -type l
+		Test 7c..OK
+	  Test 7d:  find . -name cookie -type d
+		Test 7d..OK
+	  Test 7e:  find . -type f -name cookie
+		Test 7e..OK
+	  Test 7f:  find .
+		Test 7f..OK
+	  Test 7g: cd /tmp;  find .
+		Test 7g..OK
+
+__________________________tests done________
+All tests passed.  None of the errors detected.
+cfuentes@ls04:~/CSCI-E28/pset2$ #
+cfuentes@ls04:~/CSCI-E28/pset2$ #
+cfuentes@ls04:~/CSCI-E28/pset2$ # Now for some other cases
+cfuentes@ls04:~/CSCI-E28/pset2$ find -[K. -type abc
+find: Arguments to -type should contain only one letter
+cfuentes@ls04:~/CSCI-E28/pset2$ ./pfind . -type abc
+pfind: Arguments to -type should contain only one letter
+cfuentes@ls04:~/CSCI-E28/pset2$ find . -type X
+find: Unknown argument to -type: X
+cfuentes@ls04:~/CSCI-E28/pset2$ ./fin[K[K[Kpfind . -type X
+pfind: Unknown argument to -type: X
+cfuentes@ls04:~/CSCI-E28/pset2$ ./[K[Kfind . -name stuff[K[K[K[K[Kstuff extra_token
+find: paths must precede expression: extra_token
+Usage: find [-H] [-L] [-P] [-Olevel] [-D help|tree|search|stat|rates|opt|exec] [path...] [expression]
+cfuentes@ls04:~/CSCI-E28/pset2$ ./pfind . -an[K[Kname stuff extra-token[1Ptoken_token
+pfind: paths must precede expression: extra_token
+Usage: pfind dirname [-name {string|exp}] [-type {f|d|b|c|p|l|s}]
+cfuentes@ls04:~/CSCI-E28/pset2$ ./pfind
+pfind: Starting directory must be specified
+Usage: pfind dirname [-name {string|exp}] [-type {f|d|b|c|p|l|s}]
+cfuentes@ls04:~/CSCI-E28/pset2$ #note that find a[Kcan run with no dirname argument, [K[K,
+cfuentes@ls04:~/CSCI-E28/pset2$ #but hw2s[K spec sa[K[K[K says that pfind m[Kmsu[K[Kust require dir[K[K[Kexactly 1 dirnam[K[Kame
+cfuentes@ls04:~/CSCI-E28/pset2$ 
+cfuentes@ls04:~/CSCI-E28/pset2$ 
+cfuentes@ls04:~/CSCI-E28/pset2$ ./[K[Kfind . -name "a[K[Ka -type -f
+find: Arguments to -type should contain only one letter
+cfuentes@ls04:~/CSCI-E28/pset2$ #whop[Kops, I meant...
+cfuentes@ls04:~/CSCI-E28/pset2$ #whoops, I meant...find . -name a -type -f[1Pf
+./a
+cfuentes@ls04:~/CSCI-E28/pset2$ ./f[Kpfind . -name a-typ[K[K[K[K ty[K[K-type f
+./a
+cfuentes@ls04:~/CSCI-E28/pset2$ #reverse arg order
+cfuentes@ls04:~/CSCI-E28/pset2$ find . -type f -name a
+./a
+cfuentes@ls04:~/CSCI-E28/pset2$ ./pfind . -type f -name a
+./a
+cfuentes@ls04:~/CSCI-E28/pset2$ #spec says multiple f[Katt[K[K[K[K -name or -type flags is a syntax err. 
+cfuentes@ls04:~/CSCI-E28/pset2$ #this is noto true [K[K[K[K[K[K[K[K [Kt truf[K for [K[K[K[K[Ke for find. 
+cfuentes@ls04:~/CSCI-E28/pset2$ find . -name a -name b
+cfuentes@ls04:~/CSCI-E28/pset2$ ./pfind . -name a -name b
+pfind: Syntax Err: -name can only be specified once
+Usage: pfind dirname [-name {string|exp}] [-type {f|d|b|c|p|l|s}]
+cfuentes@ls04:~/CSCI-E28/pset2$ find . -t f -f l
+find: unknown predicate `-t'
+cfuentes@ls04:~/CSCI-E28/pset2$ @wh[K[K[K@[K#h[Kwhoops, I meant...
+cfuentes@ls04:~/CSCI-E28/pset2$ #whoops, I meant...[3Pfind . -t f -f l[1@y[1@p[1@e[C[C[C[C[C[1P lt ly lp le l
+cfuentes@ls04:~/CSCI-E28/pset2$ ./pfind . -type f -type l
+pfind: Syntax Err: -type can only be specified once
+Usage: pfind dirname [-name {string|exp}] [-type {f|d|b|c|p|l|s}]
+cfuentes@ls04:~/CSCI-E28/pset2$ #
+cfuentes@ls04:~/CSCI-E28/pset2$ #
+cfuentes@ls04:~/CSCI-E28/pset2$ # all done
+cfuentes@ls04:~/CSCI-E28/pset2$ exit
+exit
+
+Script done on Sat 28 Feb 2015 06:09:55 PM EST

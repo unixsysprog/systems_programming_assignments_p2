@@ -1,0 +1,94 @@
+Project: pfind 
+by Christopher Fuentes
+cfuentes@g.harvard.edu
+HUID 60857326
+
+Purpose: A simplified version of the find utility
+
+Outline:
+	pfind works exactly as find -print, except that it only allows
+    options for -name <string or exp> and -type <filetype>
+
+Output:
+	pfind outputs results identically to the find utility when 
+    run with the same parameters (for name or type). E.g., 
+
+        pfind . -name "file"
+
+    should produce the same output as
+
+        find . -name "file" -print
+
+Arguments:
+	pfind [dirname] [-name {string|exp}] [-type {f|d|b|c|p|l|s}]
+
+    If dirname isn't specified, the pwd is used instead ( "." ). 
+    If name and/or type are specified, then only files matching
+    those filters will be printed. 
+
+Input:
+    Optional dirname: name of a directory from which to start the traversal
+    Optional name/exp: String or string pattern to match filenames against
+    Optional type: File type to match against (only one may be specified)
+
+How it Works:
+    
+    1. Parsing the Flags
+
+    A struct (Args) is defined to hold a dirname, a query string (the
+    value of the -name flag), and a file type character. Essentially,
+    this struct holds the signature args of the searchdir() function. 
+
+    To parse the args, we loop through the command line args, looking 
+    for any that start with '-'. If name|type are found, we check the 
+    next arg and assign it to the appropriate value in the 'args'. 
+
+    If a flag's value isn't found, a flag isn't recognized, or too many/
+    too few args are found, an error is printed and the program exits. 
+
+    The args struct is initialized with NULL values such that it can be
+    easily detected if a flag is not present.  
+
+
+    2. The Search Algorithm
+
+    Once we have the starting dirname and options, we use the following
+    algorithm:
+
+        function search(dirname, options) 
+            base_name = basename(dirname)       #extract base name
+            if match(base_name, options) then   #match name and type if given
+                print dirname
+
+            if is_dir(dirname) then
+                for dirent in opendir(dirname) do
+                    if dirent.d_name == "." or dirent.d_name == ".." then
+                        continue
+                    else
+                        newdirname = dirname + '/' + dirent.d_name
+                        search(newdirname, options) #recurse with new dirname
+
+    The reason for using basename() is twofold:
+        1. It allows us to pass in a full (relative or absolute) path and
+            only compare the final path component
+        2. The 'find' utility will attempt to match -name arguments against
+            the initial input, but ignores slashes. E.g., the results of
+
+                find ./fold -name fold
+            
+            will include "./fold", even though the two strings aren't 
+            equivalent. 
+
+
+    The match algorithm works as follows:
+
+        function match(filename, pattern, filetype, type)
+            matches_type =  (type != '\0' or filetype == type)
+            matches_pattern = fnmatch(filename, pattern) 
+            return (matches_type and matches_pattern)
+
+
+    We are offloading most of the heavy lifting to fnmatch, defined
+    in <fnmatch.h>
+
+    
